@@ -10,13 +10,23 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from PIL import Image
 import random
-import streamlite as st
+import streamlit as st
 
 # pd.set_option("display.max_rows",1000)
 
 
-our_data = pd.read_json(
-    'https://raw.githubusercontent.com/ajakaiye33/ngrnewscorpus/main/data/testy.jsonl', lines=True)
+st.title("News Headlines and Keyword Visualization")
+
+
+@st.cache
+def load_data():
+    our_data = pd.read_json(
+        'https://raw.githubusercontent.com/ajakaiye33/ngrnewscorpus/main/data/testy.jsonl', lines=True)
+    return our_data
+
+
+# load_data_state = st.text("Loading data ...")
+data = load_data()
 
 
 today = datetime.now()
@@ -30,10 +40,20 @@ def todays_headline(df, col):
     return show_keywords_today
 
 
-todays_headline(our_data, 'published')
+# load_healine = st.text("Loading News Headlines ...")
 
-# current day published news
 
+current_headline = todays_headline(data, 'scraped_date')
+
+
+st.sidebar.title("Current News Healines Across the Country")
+if st.sidebar.checkbox("Show todays Headline News"):
+
+    st.subheader("Headlines ... loaded")
+    st.write(current_headline)
+
+
+# filter current keywords
 
 def todays_keywords(df, col):
     all_keyword_today = []
@@ -48,10 +68,10 @@ def todays_keywords(df, col):
     return today_text
 
 
-todayz = todays_keywords(our_data, 'scraped_date')
+todayz = todays_keywords(data, 'scraped_date')
 
 
-# all published news
+# filter all published news
 def alltime_keywords(df, col):
     all_keyword_alltime = []
     get_date = today.strftime("%m/%d/%Y")
@@ -65,7 +85,9 @@ def alltime_keywords(df, col):
     return full_text
 
 
-all_time = alltime_keywords(our_data, 'scraped_date')
+all_time = alltime_keywords(data, 'scraped_date')
+
+st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # visualize the keyword via word cloud
 
@@ -83,4 +105,19 @@ def viz_word(period):
     return plt.show()
 
 
-viz_word(todayz)
+today_keys = viz_word(todayz)
+
+all_keys = viz_word(all_time)
+
+
+st.sidebar.title("Visualized Keywords in the News")
+
+if st.sidebar.checkbox("Show wordcloud for current News"):
+    st.subheader("Word cloud of current news")
+    st.pyplot(today_keys)
+
+
+st.sidebar.title("Visualized All time Keywords")
+if st.sidebar.checkbox("Show word cloud for all time News"):
+    st.subheader("Word cloud of all time News")
+    st.pyplot(all_keys)
