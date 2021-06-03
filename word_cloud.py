@@ -21,7 +21,7 @@ st.title("News Headlines and Keyword Visualization")
 @st.cache
 def load_data():
     our_data = pd.read_json(
-        'https://raw.githubusercontent.com/ajakaiye33/ngrnewscorpus/main/data/testy.jsonl', lines=True)
+        'https://raw.githubusercontent.com/ajakaiye33/ngrnewscorpus/main/docs/testy.jsonl', lines=True)
     return our_data
 
 
